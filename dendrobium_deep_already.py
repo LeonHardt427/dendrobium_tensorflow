@@ -12,12 +12,13 @@ from sklearn.preprocessing import LabelBinarizer
 """
 set parameter
 """
-INPUT_NODE = 384
+INPUT_NODE = 512
 OUTPUT_NODE = 10
 HIDDEN_LAYER1 = 100
-SUMMARY_DIR = '/tmp/to/F500toT119Hd100/log'  # F...toT...Hd...
-TEST_DRI = '/tmp/to/F500toT119Hd100/test'
-TRAIN_STEP = 200000
+NAME_SAMPLE = 'F500toT159'
+SUMMARY_DIR = '/tmp/to/size02/' + NAME_SAMPLE + '/log'  # F...toT...Hd...
+TEST_DRI = '/tmp/to/size02/' + NAME_SAMPLE + '/test'
+TRAIN_STEP = 10000
 
 """
 arrange summaries
@@ -61,12 +62,15 @@ main_train function
 
 
 def main(_):
+
     with tf.name_scope('input'):
         x = tf.placeholder(tf.float32, None, name='x_input')
         y_ = tf.placeholder(tf.float32, None, name='y_input')
-# """
+
+    # """
 # Change the direction
 # """
+        """
         X_data = np.loadtxt('x_sample_F500toT119.csv', delimiter=',')
         y_data = np.loadtxt('y_label_F500toT119.csv', delimiter=',', dtype='int8')
 
@@ -74,6 +78,14 @@ def main(_):
         y_data = LabelBinarizer().fit_transform(y_data)
 
         X_train, X_test, y_train, y_test = train_test_split(X_data, y_data, test_size=0.2)
+        """
+        X_train = np.loadtxt('x_sample_train_02' + NAME_SAMPLE + '.csv', delimiter=',')
+        X_test = np.loadtxt('x_sample_test_02' + NAME_SAMPLE + '.csv', delimiter=',')
+        y_train = np.loadtxt('y_label_train_02' + NAME_SAMPLE + '.csv', delimiter=',', dtype='int8')
+        y_test = np.loadtxt('y_label_test_02' + NAME_SAMPLE + '.csv', delimiter=',', dtype='int8')
+
+        y_train = LabelBinarizer().fit_transform(y_train)
+        y_test = LabelBinarizer().fit_transform(y_test)
 
         print(y_train.shape)
         print(y_.shape)
@@ -102,7 +114,6 @@ def main(_):
         test_write = tf.summary.FileWriter(TEST_DRI, sess.graph)
         tf.global_variables_initializer().run()
         for i in range(TRAIN_STEP):
-            if i % 50 == 0:
                 summary, _ = sess.run([merged, train_step], feed_dict={x: X_train, y_: y_train})
                 test_result, acc = sess.run([merged, accuracy], feed_dict={x: X_test, y_: y_test})
                 summary_write.add_summary(summary, i)
